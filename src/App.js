@@ -24,6 +24,7 @@ function App() {
   const [employees, setEmployees] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentData, setCurrentData] = useState([]);
+  console.log("🚀 ~ App ~ currentData:", currentData);
   const [totalPages, setTotalPages] = useState(0); // Assuming
   const url =
     "https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/members.json";
@@ -35,17 +36,18 @@ function App() {
     fetch(url)
       .then((response) => {
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         return response.json();
       })
       .then((data) => {
+        console.log("🚀 ~ .then ~ data:", data);
         setEmployees(data);
         setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching employee data:", error);
-        alert('failed to fetch data');
+        alert("failed to fetch data");
         setEmployees([]); // Clear employees on error
         setTotalPages(0); // Reset total pages on error
         setCurrentPage(1); // Reset to first page on error
@@ -55,25 +57,11 @@ function App() {
 
   useEffect(() => {
     if (employees.length > 0) {
-      // Calculate total pages based on page size of 10
       setTotalPages(Math.ceil(employees.length / pageSize));
-    }
-  }, [employees]);
-
-  useEffect(() => {
-    if (employees.length > 0) {
-      // Update current data when page changes
-      setCurrentData(
-        employees.slice((currentPage - 1) * pageSize, currentPage * pageSize)
-      );
+      const pageNo = currentPage === 0 ? 0 : (currentPage - 1) * pageSize;
+      setCurrentData(employees.slice(pageNo, currentPage * pageSize));
     }
   }, [employees, currentPage]);
-
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
 
   if (loading) {
     return <div>Loading...</div>;
